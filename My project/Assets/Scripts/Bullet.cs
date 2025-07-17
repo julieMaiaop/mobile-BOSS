@@ -14,7 +14,7 @@ public class Bullet : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag(bullet))
+        if (other.CompareTag("Bullet"))
         {
             // Tenta pegar o componente correto dependendo da tag
             if (bullet == "Player")
