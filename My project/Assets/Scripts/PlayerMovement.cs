@@ -4,84 +4,59 @@ using UnityEngine.EventSystems;
 public class PlayerMovement : MonoBehaviour
 {
     public float moveSpeed = 5f;
-    public float jumpForce = 7f;
-    public bool isMobile = true;
+    public float jumpForce = 10f;
+    public Rigidbody2D rb;
 
-    private Rigidbody2D rb;
-    private float horizontalInput;
-    private bool isJumping;
+    private float moveInput;
+    private bool isJumpPressed = false;
 
-    private bool isPressingLeft = false;
-    private bool isPressingRight = false;
-
-    void Start()
-    {
-        rb = GetComponent<Rigidbody2D>();
-    }
+    // Mobile
+    public bool moveLeftHeld = false;
+    public bool moveRightHeld = false;
 
     void Update()
     {
-        if (!isMobile)
-        {
-            // Controle teclado PC
-            horizontalInput = Input.GetAxisRaw("Horizontal");
+        // PC input
+        moveInput = Input.GetAxisRaw("Horizontal");
 
-            if (Input.GetButtonDown("Jump"))
-            {
-                isJumping = true;
-            }
-        }
-        else
-        {
-            // Controle Mobile
-            if (isPressingLeft)
-                horizontalInput = -1;
-            else if (isPressingRight)
-                horizontalInput = 1;
-            else
-                horizontalInput = 0;
-        }
+        if (Input.GetButtonDown("Jump") && IsOnGround())
+            isJumpPressed = true;
+
+        // Mobile input
+        if (moveLeftHeld) moveInput = -1;
+        else if (moveRightHeld) moveInput = 1;
     }
 
     void FixedUpdate()
     {
-        // Movimento horizontal
-        rb.linearVelocity = new Vector2(horizontalInput * moveSpeed, rb.linearVelocity.y);
+        rb.velocity = new Vector2(moveInput * moveSpeed, rb.velocity.y);
 
-        // Pulo
-        if (isJumping)
+        if (isJumpPressed && IsOnGround())
         {
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
-            isJumping = false;
+            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+            isJumpPressed = false;
         }
     }
 
-    // Método para pular (chamar no botão pular do mobile)
-    public void MobileJump()
+    bool IsOnGround()
     {
-        isJumping = true;
+        return Mathf.Abs(rb.velocity.y) < 0.01f;
     }
 
-    // Detecta quando apertou algum botão (esquerda ou direita)
-    public void OnPointerDown(PointerEventData eventData)
+    // Chamado pelos botões mobile
+    public void JumpButton()
     {
-        string btnName = eventData.pointerCurrentRaycast.gameObject.name;
-
-        if (btnName == "ButtonLeft")
-            isPressingLeft = true;
-        else if (btnName == "ButtonRight")
-            isPressingRight = true;
+        if (IsOnGround()) isJumpPressed = true;
     }
 
-    // Detecta quando soltou o botão
-    public void OnPointerUp(PointerEventData eventData)
+    public void MoveLeft(bool held)
     {
-        string btnName = eventData.pointerCurrentRaycast.gameObject.name;
+        moveLeftHeld = held;
+    }
 
-        if (btnName == "ButtonLeft")
-            isPressingLeft = false;
-        else if (btnName == "ButtonRight")
-            isPressingRight = false;
+    public void MoveRight(bool held)
+    {
+        moveRightHeld = held;
     }
 
 
