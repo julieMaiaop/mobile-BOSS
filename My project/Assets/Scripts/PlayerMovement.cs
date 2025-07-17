@@ -3,62 +3,45 @@ using UnityEngine.EventSystems;
 
 public class PlayerMovement : MonoBehaviour
 {
+
     public float moveSpeed = 5f;
     public float jumpForce = 10f;
-    public Rigidbody2D rb;
 
-    private float moveInput;
-    private bool isJumpPressed = false;
+    private Rigidbody2D rb;
+    private bool isGrounded;
 
-    // Mobile
-    public bool moveLeftHeld = false;
-    public bool moveRightHeld = false;
+    void Start()
+    {
+        rb = GetComponent<Rigidbody2D>();
+    }
 
     void Update()
     {
-        // PC input
-        moveInput = Input.GetAxisRaw("Horizontal");
+        // Movimento horizontal
+        float moveInput = Input.GetAxisRaw("Horizontal");
+        rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
 
-        if (Input.GetButtonDown("Jump") && IsOnGround())
-            isJumpPressed = true;
-
-        // Mobile input
-        if (moveLeftHeld) moveInput = -1;
-        else if (moveRightHeld) moveInput = 1;
-    }
-
-    void FixedUpdate()
-    {
-        rb.velocity = new Vector2(moveInput * moveSpeed, rb.velocity.y);
-
-        if (isJumpPressed && IsOnGround())
+        // Pular
+        if (Input.GetButtonDown("Jump") && isGrounded)
         {
-            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
-            isJumpPressed = false;
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
         }
     }
 
-    bool IsOnGround()
+    void OnCollisionEnter2D(Collision2D collision)
     {
-        return Mathf.Abs(rb.velocity.y) < 0.01f;
+        // Verifica se tocou no chão
+        if (collision.contacts[0].normal.y > 0.5f)
+        {
+            isGrounded = true;
+        }
     }
 
-    // Chamado pelos botões mobile
-    public void JumpButton()
+    void OnCollisionExit2D(Collision2D collision)
     {
-        if (IsOnGround()) isJumpPressed = true;
+        // Saiu do chão
+        isGrounded = false;
     }
-
-    public void MoveLeft(bool held)
-    {
-        moveLeftHeld = held;
-    }
-
-    public void MoveRight(bool held)
-    {
-        moveRightHeld = held;
-    }
-
 
 
 }
