@@ -5,7 +5,7 @@ public class Bullet : MonoBehaviour
 
     public float speed = 10f;
     public int damage = 1;
-    public string targetTag; // Configure no prefab: "Player" ou "Boss"
+    public string bullet; // Configure no prefab: "Player" ou "Boss"
 
     void Update()
     {
@@ -14,16 +14,16 @@ public class Bullet : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag(targetTag))
+        if (other.CompareTag(bullet))
         {
             // Tenta pegar o componente correto dependendo da tag
-            if (targetTag == "Player")
+            if (bullet == "Player")
             {
                 var player = other.GetComponent<PlayerController>();
                 if (player != null)
                     player.TakeDamage(damage);
             }
-            else if (targetTag == "Boss")
+            else if (bullet == "Boss")
             {
                 var boss = other.GetComponent<BossController>();
                 if (boss != null)
